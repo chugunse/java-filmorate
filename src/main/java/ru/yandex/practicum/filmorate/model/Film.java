@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import javax.validation.constraints.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -17,4 +19,5 @@ public class Film {
     @Positive
     @Min(value = 1, message = "Неправильная продолжительность фильма")
     private final int duration;
+    private Set<Integer> likes = new HashSet<>();
 }
