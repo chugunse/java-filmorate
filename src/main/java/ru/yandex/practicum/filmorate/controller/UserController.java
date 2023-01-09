@@ -20,42 +20,42 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@Valid @RequestBody User user) throws Exception {
+    public User addUser(@Valid @RequestBody User user) {
         return userService.create(user);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws Exception {
+    public User updateUser(@Valid @RequestBody User user) {
         return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public List<Integer> addFriends(@PathVariable int id, @PathVariable int friendId){
+    public List<Integer> addFriends(@PathVariable int id, @PathVariable int friendId) {
         return userService.addFriendship(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public List<Integer> deleteFriends(@PathVariable int id, @PathVariable int friendId){
+    public List<Integer> deleteFriends(@PathVariable int id, @PathVariable int friendId) {
         return userService.removeFriendship(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable int id){
+    public List<User> getFriends(@PathVariable int id) {
         return userService.getFriendsListById(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId){
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriendsList(id, otherId);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable int id) throws Exception {
+    public User getUserById(@PathVariable int id) {
         return userService.getById(id);
     }
 
     @DeleteMapping("/{id}")
-    public User deleteById(@PathVariable int id) throws Exception {
+    public User deleteById(@PathVariable int id) {
         return userService.deleteById(id);
     }
 }

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -17,12 +16,12 @@ public class UserService {
         return userStorage.findAll();
     }
 
-    public User create(User user) throws ValidationException {
+    public User create(User user) {
         validate(user);
         return userStorage.create(user);
     }
 
-    public User update(User user) throws Exception {
+    public User update(User user) {
         validate(user);
         return userStorage.update(user);
     }
@@ -43,11 +42,11 @@ public class UserService {
         return userStorage.getCommonFriendsList(firstId, secondId);
     }
 
-    public User getById(int id) throws Exception {
+    public User getById(int id) {
         return userStorage.getById(id);
     }
 
-    public User deleteById(int id) throws Exception {
+    public User deleteById(int id) {
         return userStorage.deleteById(id);
     }
 

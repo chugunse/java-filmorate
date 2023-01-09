@@ -9,13 +9,13 @@ public interface UserStorage {
 
     List<User> findAll();
 
-    User create(User user) throws ValidationException;
+    User create(User user);
 
-    User update(User user) throws Exception;
+    User update(User user);
 
-    User getById(int id) throws Exception;
+    User getById(int id);
 
-    User deleteById(int id) throws Exception;
+    User deleteById(int id);
 
     List<Integer> addFriendship(int firstId, int secondId);
 

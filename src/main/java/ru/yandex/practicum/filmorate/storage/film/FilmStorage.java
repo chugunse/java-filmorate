@@ -8,13 +8,13 @@ public interface FilmStorage {
 
     List<Film> findAll();
 
-    Film create(Film film) throws Exception;
+    Film create(Film film);
 
-    Film update(Film film) throws Exception;
+    Film update(Film film);
 
-    Film getById(int id) throws Exception;
+    Film getById(int id);
 
-    Film deleteById(int id) throws Exception;
+    Film deleteById(int id);
 
     Film addLike(int filmId, int userId);
 

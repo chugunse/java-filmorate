@@ -1,16 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
+@Validated
 public class FilmController {
 
     private final FilmService filmService;
@@ -21,12 +24,12 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) throws Exception {
+    public Film addFilm(@Valid @RequestBody Film film) {
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) throws Exception {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
 
@@ -41,17 +44,17 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
+    public List<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") int count) {
         return filmService.getBestFilms(count);
     }
 
     @GetMapping("/{id}")
-    public Film getById(@PathVariable int id) throws Exception {
+    public Film getById(@PathVariable int id) {
         return filmService.getById(id);
     }
 
     @DeleteMapping("/{id}")
-    public Film deleteById(@PathVariable int id) throws Exception {
+    public Film deleteById(@PathVariable int id) {
         return filmService.deleteById(id);
     }
 }
