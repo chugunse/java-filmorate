@@ -103,7 +103,13 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> getCommonFriendsList(int firstId, int secondId) {
         log.info("Запрос GET /users/{}/friends/common/{}", firstId, secondId);
-        return users.get(firstId).getFriends().stream().filter(id -> users.get(secondId).getFriends().contains(id)).
-                map(users::get).collect(Collectors.toList());
+        if (!users.containsKey(firstId)) {
+            throw new ObjectNotFoundException("User с id=" + firstId + " не найден");
+        } else if (!users.containsKey(secondId)) {
+            throw new ObjectNotFoundException("User с id=" + secondId + " не найден");
+        } else {
+            return users.get(firstId).getFriends().stream().filter(id -> users.get(secondId).getFriends().contains(id)).
+                    map(users::get).collect(Collectors.toList());
+        }
     }
 }
