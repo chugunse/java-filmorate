@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -95,23 +96,14 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(id)) {
             throw new ObjectNotFoundException("User с id=" + id + " не найден");
         } else {
-            List<User> list = new ArrayList<>();
-            for (int friendsId : users.get(id).getFriends()) {
-                list.add(users.get(friendsId));
-            }
-            return list;
+            return users.get(id).getFriends().stream().map(users::get).collect(Collectors.toList());
         }
     }
 
     @Override
     public List<User> getCommonFriendsList(int firstId, int secondId) {
         log.info("Запрос GET /users/{}/friends/common/{}", firstId, secondId);
-        List<User> list = new ArrayList<>();
-        for (int id : users.get(firstId).getFriends()) {
-            if (users.get(secondId).getFriends().contains(id)) {
-                list.add(users.get(id));
-            }
-        }
-        return list;
+        return users.get(firstId).getFriends().stream().filter(id -> users.get(secondId).getFriends().contains(id)).
+                map(users::get).collect(Collectors.toList());
     }
 }
