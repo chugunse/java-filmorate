@@ -1,70 +1,62 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.ValidationException;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/users")
-@Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private int id = 0;
-    private final Map<Integer, User> users = new HashMap<>();
-
-    private int genId() {
-        return ++id;
-    }
-
+    private final UserService userService;
 
     @GetMapping
     public List<User> findAll() {
-        log.debug("Текущее количество юзеров: {}", users.size());
-        return new ArrayList<>(users.values());
+        return userService.findAll();
     }
 
     @PostMapping
-    @ResponseBody
-    public User addUser(@Valid @RequestBody User user) throws Exception {
-        log.info("Запрос POST /users " + user);
-        if (validate(user)) {
-            user.setId(genId());
-            users.put(user.getId(), user);
-        }
-        return user;
+    public User add(@Valid @RequestBody User user) {
+        return userService.create(user);
     }
 
     @PutMapping
-    @ResponseBody
-    public User updateUser(@Valid @RequestBody User user) throws Exception {
-        log.info("Запрос PUT /users " + user);
-        validate(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-        } else {
-            throw new Exception();
-        }
-        return user;
+    public User update(@Valid @RequestBody User user) {
+        return userService.update(user);
     }
 
-    boolean validate(User user) throws ValidationException {
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate birthday = LocalDate.parse(user.getBirthday(), inputFormatter);
-        if (birthday.isAfter(LocalDate.now())) {
-            throw new ValidationException("введенная дата дня рождения еще не наступила");
-        }
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        return true;
+    @PutMapping("/{id}/friends/{friendId}")
+    public List<Integer> addFriends(@PathVariable int id, @PathVariable int friendId) {
+        return userService.addFriendship(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public List<Integer> deleteFriends(@PathVariable int id, @PathVariable int friendId) {
+        return userService.removeFriendship(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable int id) {
+        return userService.getFriendsListById(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
+        return userService.getCommonFriendsList(id, otherId);
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable int id) {
+        return userService.getById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public User deleteById(@PathVariable int id) {
+        return userService.deleteById(id);
     }
 }
 
