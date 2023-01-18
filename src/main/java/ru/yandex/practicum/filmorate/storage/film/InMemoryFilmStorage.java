@@ -9,8 +9,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
-public class InMemoryFilmStorage implements FilmStorage {
+//@Component
+public class InMemoryFilmStorage {/*
     private int id = 0;
     private final Map<Integer, Film> films = new HashMap<>();
 
@@ -94,5 +94,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.info("Запрос Get /films/popular?count={}", count);
         return films.values().stream().sorted((a, b) -> b.getLikes().size() - a.getLikes().size()).
                 limit(count).collect(Collectors.toList());
-    }
+    }*/
 }

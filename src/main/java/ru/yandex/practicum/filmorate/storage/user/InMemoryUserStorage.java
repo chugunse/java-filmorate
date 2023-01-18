@@ -12,9 +12,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
-public class InMemoryUserStorage implements UserStorage {
-    private int id = 0;
+public class InMemoryUserStorage{
+/*    private int id = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
     private int genId() {
@@ -111,5 +110,5 @@ public class InMemoryUserStorage implements UserStorage {
             return users.get(firstId).getFriends().stream().filter(id -> users.get(secondId).getFriends().contains(id)).
                     map(users::get).collect(Collectors.toList());
         }
-    }
+    }*/
 }
