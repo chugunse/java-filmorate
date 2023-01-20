@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Sql({"/drop_schema.sql", "/schema.sql", "/data.sql"})
+@Sql({"/schema.sql", "/data.sql"})
 class FilmServiceTests {
     private final FilmService filmService;
     private final UserService userService;

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Sql({"/drop_schema.sql", "/schema.sql", "/data.sql"})
+@Sql({"/schema.sql", "/data.sql"})
 public class MpaServiceTests {
     private final MpaService mpaService;
 
