@@ -18,9 +18,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
-@Component("filmDbStorage")
+@Component
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -47,8 +48,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setInt(4, film.getDuration());
             return stmt;
         }, generatedId);
-
-        film.setId(generatedId.getKey().intValue());
+        film.setId(Objects.requireNonNull(generatedId.getKey().intValue()));
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
                 String checkDuplicate = "SELECT * FROM film_genre WHERE film_id = ? AND genre_id = ?";
@@ -67,7 +67,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        checkFilm(film.getId());
         final String sqlQuery = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?" +
                 "WHERE id = ?";
         final String deleteMpa = "DELETE FROM mpa_films WHERE film_id = ?";
@@ -96,7 +95,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getById(int id) {
-        checkFilm(id);
         final String sqlQuery = "SELECT * FROM films WHERE id = ?";
         log.info("Запрос фильма с id = {} отправлен", id);
         return jdbcTemplate.queryForObject(sqlQuery, this::makefilm, id);
@@ -104,7 +102,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film deleteById(int id) {
-        checkFilm(id);
         Film film = getById(id);
         final String sqlDeleteQuery = "DELETE FROM films WHERE id = ?";
         final String sqlDeleteGenreQuery = "DELETE FROM film_genre WHERE film_id = ?";
@@ -120,7 +117,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addLike(int filmId, int userId) {
-        checkFilmAndUser(filmId, userId);
         final String sqlQuery = "INSERT INTO films_likes (film_id, user_id) VALUES ( ?, ?)";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         log.info("Добавлен лайк к фильмы {} от юзера {}", filmId, userId);
@@ -129,7 +125,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film removeLike(int filmId, int userId) {
-        checkFilmAndUser(filmId, userId);
         final String sqlQuery = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sqlQuery, filmId, userId);
         log.info("Удален лайк к фильмы {} от юзера {}", filmId, userId);
@@ -160,9 +155,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Genre> findGenre(int id) {
-//        final String sqlQuery = "SELECT genre_id, genre_name FROM genre AS g" +
-//                "LEFT JOIN film_genre AS fg ON g.genre_id = fg.genre_id" +
-//                "WHERE fg.film_id = ?";
         final String sqlQuery = "SELECT genre.genre_id, GENRE_NAME " +
                 "FROM genre " +
                 "LEFT JOIN film_genre FG on genre.genre_id = FG.GENRE_ID " +
@@ -171,39 +163,30 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
-    private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("genre_id");
-        String name = rs.getString("genre_name");
+    private Genre makeGenre(ResultSet resultSet, int rowNum) throws SQLException {
+        int id = resultSet.getInt("genre_id");
+        String name = resultSet.getString("genre_name");
         return new Genre(id, name);
     }
 
-    private Film makefilm(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("id");
-        String name = rs.getString("name");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        int duration = rs.getInt("duration");
+    private Film makefilm(ResultSet resultSet, int rowNum) throws SQLException {
+        int id = resultSet.getInt("id");
+        String name = resultSet.getString("name");
+        String description = resultSet.getString("description");
+        LocalDate releaseDate = resultSet.getDate("release_date").toLocalDate();
+        int duration = resultSet.getInt("duration");
         List<Genre> genres = findGenre(id);
         Mpa mpa = findMpa(id);
         return new Film(id, name, description, releaseDate, duration, genres, mpa);
     }
 
-    private void checkFilm(int id) {
+    @Override
+    public void checkFilm(int id) {
         String checkQuery = "SELECT * FROM films WHERE id = ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, id);
         if (!filmRows.next()) {
             log.warn("Фильм с идентификатором {} не найден.", id);
             throw new ObjectNotFoundException("Фильм c id = " + id + " не найден");
-        }
-    }
-
-    private void checkFilmAndUser(int filmId, int userId) {
-        checkFilm(filmId);
-        final String checkUserQuery = "SELECT * FROM users WHERE id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
-        if (!userRows.next()) {
-            log.warn("Пользователь {} не найден.", userId);
-            throw new ObjectNotFoundException("Фильм c id = " + userId + "не найден");
         }
     }
 }

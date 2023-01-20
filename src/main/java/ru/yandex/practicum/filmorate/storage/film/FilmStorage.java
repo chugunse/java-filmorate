@@ -21,4 +21,6 @@ public interface FilmStorage {
     Film removeLike(int filmId, int userId);
 
     List<Film> getBestFilms(int count);
+
+    void checkFilm(int id);
 }

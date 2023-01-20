@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
-@Component("mpaDbStorage")
+@Component
 @RequiredArgsConstructor
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;

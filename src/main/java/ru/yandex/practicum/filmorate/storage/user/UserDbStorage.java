@@ -16,9 +16,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
-@Component("userDbStorage")
+@Component
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -43,15 +44,13 @@ public class UserDbStorage implements UserStorage {
             stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
         }, generatedId);
-
-        user.setId(generatedId.getKey().intValue());
+        user.setId(Objects.requireNonNull(generatedId.getKey().intValue()));
         log.info("запрос создания user с id {} отправлен", user.getId());
         return user;
     }
 
     @Override
     public User update(User user) {
-        checkUser(user.getId());
         final String sqlQuery = "UPDATE users SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? WHERE id = ?";
         jdbcTemplate.update(sqlQuery, user.getEmail(), user.getLogin(),
                 user.getName(), user.getBirthday(), user.getId());
@@ -61,7 +60,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User getById(int id) {
-        checkUser(id);
         final String sqlQuery = "SELECT * FROM users WHERE id = ?";
         log.info("запрос на получение user с id = {} отправлен.", id);
         return jdbcTemplate.queryForObject(sqlQuery, this::makeUser, id);
@@ -69,18 +67,16 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User deleteById(int id) {
-        checkUser(id);
-        final String sqlQuery = "DELETE FROM users WHERE id = ?";
+        final String sqlQuery = "SELECT * FROM users WHERE id = ?";
+        final String sqlDeleteQuery = "DELETE FROM users WHERE id = ?";
         User user = jdbcTemplate.queryForObject(sqlQuery, this::makeUser, id);
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update(sqlDeleteQuery, id);
         log.info("запрос на удаление user с id = {} отправлен", id);
         return user;
     }
 
     @Override
     public List<Integer> addFriendship(int firstId, int secondId) {
-        checkUser(firstId);
-        checkUser(secondId);
         final String sqlUpdateQuery = "UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?";
         final String sqlWriteQuery = "INSERT INTO friends (user_id, friend_id, status ) VALUES (?, ?, ?)";
         final String checkQuery = "SELECT * FROM friends WHERE user_id = ? AND friend_id = ?";
@@ -97,12 +93,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<Integer> removeFriendship(int firstId, int secondId) {
-        checkUser(firstId);
-        checkUser(secondId);
         final String sqlDeleteQuery = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
-        final String checkQuery = "SELECT status FROM friends WHERE user_id = ? AND friend_id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkQuery, firstId, secondId);
-        SqlRowSet userRowsRevers = jdbcTemplate.queryForRowSet(checkQuery, secondId, firstId);
         jdbcTemplate.update(sqlDeleteQuery, firstId, secondId);
         log.info("user с id = {} убрал из друзей user id = {}", firstId, secondId);
         return List.of(firstId, secondId);
@@ -110,7 +101,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getFriendsListById(int id) {
-        checkUser(id);
         final String sqlQuery = "SELECT id, email, login, name, birthday FROM users " +
                 "LEFT JOIN friends ON users.id = friends.friend_id " +
                 "WHERE user_id = ?";
@@ -120,8 +110,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriendsList(int firstId, int secondId) {
-        checkUser(firstId);
-        checkUser(secondId);
         final String sqlQuery = "SELECT id, email, login, name, birthday FROM friends " +
                 "LEFT JOIN users ON users.id = friends.friend_id " +
                 "WHERE friends.user_id = ? AND friends.friend_id IN " +
@@ -132,16 +120,16 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, this::makeUser, firstId, secondId);
     }
 
-    private User makeUser(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("id");
-        String email = rs.getString("email");
-        String login = rs.getString("login");
-        String name = rs.getString("name");
-        LocalDate birthday = rs.getDate("birthday").toLocalDate();
+    private User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
+        int id = resultSet.getInt("id");
+        String email = resultSet.getString("email");
+        String login = resultSet.getString("login");
+        String name = resultSet.getString("name");
+        LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
         return new User(id, email, login, name, birthday);
     }
 
-    private void checkUser(int id) {
+    public void checkUser(int id) {
         final String sqlCheckQuery = "SELECT * FROM users WHERE id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlCheckQuery, id);
         if (!userRows.next()) {

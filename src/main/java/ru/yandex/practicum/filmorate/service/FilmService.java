@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -12,9 +10,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Autowired
-    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
+    private final UserService userService;
 
     public List<Film> findAll() {
         return filmStorage.findAll();
@@ -25,27 +22,37 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        checkFilm(film.getId());
         return filmStorage.update(film);
     }
 
     public Film getById(int id) {
+        checkFilm(id);
         return filmStorage.getById(id);
     }
 
     public Film deleteById(int id) {
+        checkFilm(id);
         return filmStorage.deleteById(id);
     }
 
     public Film addLike(int filmId, int userId) {
-
+        checkFilm(filmId);
+        userService.checkUser(userId);
         return filmStorage.addLike(filmId, userId);
     }
 
     public Film removeLike(int filmId, int userId) {
+        checkFilm(filmId);
+        userService.checkUser(userId);
         return filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getBestFilms(int count) {
         return filmStorage.getBestFilms(count);
+    }
+
+    private void checkFilm(int id) {
+        filmStorage.checkFilm(id);
     }
 }
