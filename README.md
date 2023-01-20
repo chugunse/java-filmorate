@@ -31,4 +31,3 @@ Template repository for Filmorate project.
 - `[GET] /genres/{id}` – получить жанр `id`
 
 ## Схема базы данных
-![](scheme.png)
