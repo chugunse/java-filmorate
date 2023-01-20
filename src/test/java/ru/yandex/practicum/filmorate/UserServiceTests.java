@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Sql({"/drop_schema.sql", "/schema.sql", "/data.sql"})
 public class UserServiceTests {
     private final UserService userService;
-    private User testUser = new User(1, "testEmail", "testLogin", "testName",
+    private final User testUser = new User(1, "testEmail", "testLogin", "testName",
             LocalDate.of(1989, 3, 12));
 
     @Test

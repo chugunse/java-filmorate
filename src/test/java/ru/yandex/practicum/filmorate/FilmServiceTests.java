@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FilmServiceTests {
     private final FilmService filmService;
     private final UserService userService;
-    private Film film = new Film(1, "name", "description1",
+    private final Film film = new Film(1, "name", "description1",
             LocalDate.of(2023, 1, 19), 100, null, new Mpa(1, "G"));
 
-    private User user = new User(1, "testEmail", "testLogin", "testName",
+    private final User user = new User(1, "testEmail", "testLogin", "testName",
             LocalDate.of(1989, 3, 12));
 
     @Test
