@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserService userService;
 
     public List<Film> findAll() {
         return filmStorage.findAll();
@@ -21,27 +22,37 @@ public class FilmService {
     }
 
     public Film update(Film film) {
+        checkFilm(film.getId());
         return filmStorage.update(film);
     }
 
     public Film getById(int id) {
+        checkFilm(id);
         return filmStorage.getById(id);
     }
 
     public Film deleteById(int id) {
+        checkFilm(id);
         return filmStorage.deleteById(id);
     }
 
     public Film addLike(int filmId, int userId) {
-
+        checkFilm(filmId);
+        userService.checkUser(userId);
         return filmStorage.addLike(filmId, userId);
     }
 
     public Film removeLike(int filmId, int userId) {
+        checkFilm(filmId);
+        userService.checkUser(userId);
         return filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getBestFilms(int count) {
         return filmStorage.getBestFilms(count);
+    }
+
+    private void checkFilm(int id) {
+        filmStorage.checkFilm(id);
     }
 }

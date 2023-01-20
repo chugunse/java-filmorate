@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.exeption.ValidationException;
 
 import java.util.List;
 
@@ -24,4 +23,6 @@ public interface UserStorage {
     List<User> getFriendsListById(int id);
 
     List<User> getCommonFriendsList(int firstId, int secondId);
+
+    void checkUser(int id);
 }
